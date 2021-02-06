@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Client {
+    private static final String QUIT_COMMAND = "q";
     private ObjectInputStream reader;
     private ObjectOutputStream writer;
     private Socket clientSocket;
@@ -36,20 +37,23 @@ public class Client {
     }
 
     public void run() {
-        System.out.println("Input task number <1 to 16> or <q> to exit: ");
-
         Bridge bridge = new BridgeImpl();
 
-        Scanner in = new Scanner(System.in);
-        String command = in.nextLine();
+        String command = inputCommand();
         InputDataAssembler dataAssembler;
-        while (!command.equals("q")) {
+        while (!command.equals(QUIT_COMMAND)) {
             bridge.sendCommand(writer, command);
             dataAssembler = InputDataAssemblerFactory.createInputDataAssembler(command);
             bridge.sendData(writer, dataAssembler.assembleData(command));
             System.out.println("Result: " + bridge.getAnswer(reader).getResult());
-            command = in.nextLine();
+            command = inputCommand();
         }
+    }
+
+    private String inputCommand() {
+        System.out.println("Input task number <1 to 16> or <q> to exit: ");
+        Scanner in = new Scanner(System.in);
+        return in.nextLine();
     }
 }
 
